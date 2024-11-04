@@ -150,3 +150,47 @@ def stream_broadcast(request):
 @ensure_csrf_cookie
 def news_player(request):
     return render(request, 'xradiocore/player.html')
+
+async def trending_news(request):
+    try:
+        news_service = NewsService()
+        news = await news_service.get_trending_news(max_results=20)
+        
+        if not news:
+            return JsonResponse({
+                'error': 'No news available at the moment'
+            }, status=404)
+        
+        # Extract trending topics from news
+        topics = {}
+        for item in news:
+            category = item.get('category', 'General')
+            if category not in topics:
+                topics[category] = {
+                    'count': 1,
+                    'latest': item,
+                    'trend': 'up'
+                }
+            else:
+                topics[category]['count'] += 1
+        
+        response_data = {
+            'news': news,
+            'topics': [
+                {
+                    'name': category,
+                    'count': data['count'],
+                    'trend': data['trend'],
+                    'latest_news': data['latest']['text'][:100] + '...' if len(data['latest']['text']) > 100 else data['latest']['text']
+                }
+                for category, data in topics.items()
+            ]
+        }
+        
+        return JsonResponse(response_data)
+    except Exception as e:
+        logger.error(f"Error in trending_news view: {str(e)}")
+        return JsonResponse({
+            'error': 'An error occurred while fetching news',
+            'detail': str(e)
+        }, status=500)

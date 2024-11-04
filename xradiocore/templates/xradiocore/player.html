@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -8,81 +9,9 @@
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
       rel="stylesheet"
     />
+    <link href="{% static 'css/player.css' %}" rel="stylesheet" />
     <style>
-      .loading-spinner {
-        border: 4px solid #f3f3f3;
-        border-radius: 50%;
-        border-top: 4px solid #3498db;
-        width: 40px;
-        height: 40px;
-        animation: spin 1s linear infinite;
-        margin: 20px auto;
-        display: none;
-      }
-
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
-      }
-
-      .audio-player {
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      .audio-player:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-        border-color: rgba(255, 255, 255, 0.2);
-      }
-
-      .btn {
-        transition: all 0.3s ease;
-      }
-
-      .btn:hover {
-        transform: scale(1.05);
-      }
-
-      .btn:active {
-        transform: scale(0.95);
-      }
-
-      #visualizer {
-        position: absolute;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 90%;
-        height: 100px;
-        background: rgba(0, 0, 0, 0.2);
-        border-radius: 12px;
-        backdrop-filter: blur(4px);
-        z-index: 20;
-      }
-
-      .neon-text {
-        color: #fff;
-        text-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
-          0 0 20px rgba(0, 115, 230, 0.8), 0 0 30px rgba(0, 115, 230, 0.6);
-      }
-
-      .gradient-border {
-        position: relative;
-        border-radius: 12px;
-        padding: 1px;
-        background: linear-gradient(45deg, #00ff88, #0073e6, #00ff88);
-        background-size: 200% 200%;
-        animation: gradientBorder 3s ease infinite;
-      }
-
-      @keyframes gradientBorder {
+      @keyframes gradient-x {
         0% {
           background-position: 0% 50%;
         }
@@ -94,1064 +23,9 @@
         }
       }
 
-      .wave {
-        opacity: 0.15;
-        mix-blend-mode: screen;
-      }
-
-      /* Custom audio player controls */
-      audio::-webkit-media-controls-panel {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(5px);
-      }
-
-      audio::-webkit-media-controls-play-button,
-      audio::-webkit-media-controls-mute-button {
-        background-color: rgba(255, 255, 255, 0.2);
-        border-radius: 50%;
-        transition: all 0.3s ease;
-      }
-
-      audio::-webkit-media-controls-play-button:hover,
-      audio::-webkit-media-controls-mute-button:hover {
-        background-color: rgba(255, 255, 255, 0.3);
-        transform: scale(1.1);
-      }
-
-      /* Improved status message styling */
-      #statusMessage {
-        font-size: 0.9rem;
-        letter-spacing: 0.5px;
-        padding: 0.5rem;
-        border-radius: 8px;
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(5px);
-        transition: all 0.3s ease;
-      }
-
-      /* Add to the existing <style> section */
-      #imageContainer img {
-        transition: opacity 1s ease-in-out;
-        filter: brightness(0.8) saturate(1.2);
-      }
-
-      #imageContainer::after {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(
-          0deg,
-          rgba(0, 0, 0, 0.3) 0%,
-          rgba(0, 0, 0, 0) 50%
-        );
-        pointer-events: none;
-      }
-
-      .image-loading {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        color: white;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-      }
-
-      /* Update visualizer styling */
-      #visualizer {
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        backdrop-filter: blur(8px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-
-      /* Update image container styling */
-      #imageContainer img {
-        transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
-        transform-origin: center;
-        filter: brightness(0.8) saturate(1.2);
-        will-change: transform, opacity;
-      }
-
-      /* Add zoom effect to active image */
-      #imageContainer img.active {
-        transform: scale(1.05);
-      }
-
-      /* Enhanced audio player styling */
-      audio::-webkit-media-controls-panel {
-        background: rgba(0, 0, 0, 0.3) !important;
-        backdrop-filter: blur(10px);
-      }
-
-      /* Add text shadow utility */
-      .text-shadow-lg {
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-      }
-
-      /* Add glass effect utility */
-      .glass-effect {
-        backdrop-filter: blur(8px);
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-
-      /* Update audio player container */
-      .audio-player {
-        min-height: 400px;
-        position: relative;
-      }
-
-      /* Update image container styling */
-      #imageContainer {
-        z-index: 10;
-      }
-
-      #imageContainer img {
-        opacity: 0;
-        transition: opacity 1.5s ease-in-out;
-        filter: brightness(0.9) saturate(1.2);
-      }
-
-      /* Update overlay gradient */
-      #imageContainer .overlay-gradient {
-        background: linear-gradient(
-          0deg,
-          rgba(0, 0, 0, 0.7) 0%,
-          rgba(0, 0, 0, 0.3) 50%,
-          rgba(0, 0, 0, 0.2) 100%
-        );
-      }
-
-      /* Update audio controls positioning */
-      .audio-controls-container {
-        position: absolute;
-        bottom: 140px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 90%;
-        z-index: 20;
-      }
-
-      /* Enhanced Visualizer */
-      #visualizer {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: transparent;
-        opacity: 0.6;
-        mix-blend-mode: screen;
-        z-index: 15;
-      }
-
-      /* Floating Elements Effect */
-      .floating {
-        animation: float 6s ease-in-out infinite;
-      }
-
-      @keyframes float {
-        0% {
-          transform: translateY(0px);
-        }
-        50% {
-          transform: translateY(-20px);
-        }
-        100% {
-          transform: translateY(0px);
-        }
-      }
-
-      /* Glowing Effect */
-      .glow {
-        animation: glow 3s ease-in-out infinite alternate;
-      }
-
-      @keyframes glow {
-        from {
-          text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #0073e6,
-            0 0 40px #0073e6;
-        }
-        to {
-          text-shadow: 0 0 20px #fff, 0 0 30px #00ff88, 0 0 40px #00ff88,
-            0 0 50px #00ff88;
-        }
-      }
-
-      /* Enhanced Player Design */
-      .audio-player {
-        min-height: 600px;
-        perspective: 1000px;
-        transform-style: preserve-3d;
-      }
-
-      /* Particle Effect */
-      .particles {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 25;
-      }
-
-      /* Enhanced Image Transitions */
-      #imageContainer img {
-        transform: scale(1.1);
-        animation: kenBurns 20s infinite alternate ease-in-out;
-      }
-
-      @keyframes kenBurns {
-        0% {
-          transform: scale(1.1) translate(0, 0);
-        }
-        50% {
-          transform: scale(1.2) translate(-20px, -20px);
-        }
-        100% {
-          transform: scale(1.1) translate(20px, 20px);
-        }
-      }
-
-      /* Glass Morphism Enhancement */
-      .glass-morph {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-      }
-
-      /* Updated Audio Controls */
-      .audio-controls-container {
-        bottom: 40px;
-        background: rgba(0, 0, 0, 0.3);
-        padding: 20px;
-        border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        transform: translateZ(50px);
-        transition: all 0.3s ease;
-      }
-
-      .audio-controls-container:hover {
-        transform: translateZ(60px) scale(1.02);
-        border-color: rgba(255, 255, 255, 0.3);
-      }
-
-      /* Dynamic Status Message */
-      #statusMessage {
-        font-size: 1.2rem;
-        font-weight: 500;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        animation: pulse 2s infinite;
-      }
-
-      @keyframes pulse {
-        0% {
-          opacity: 0.6;
-        }
-        50% {
-          opacity: 1;
-        }
-        100% {
-          opacity: 0.6;
-        }
-      }
-
-      /* Update image container styling */
-      #imageContainer img {
-        opacity: 1 !important; /* Make images visible by default */
-        transition: opacity 1.5s ease-in-out;
-        filter: brightness(0.7) saturate(1.2); /* Slightly darken images to improve contrast */
-      }
-
-      /* Update overlay gradient for better visibility */
-      #imageContainer .overlay-gradient {
-        background: linear-gradient(
-          0deg,
-          rgba(0, 0, 0, 0.8) 0%,
-          rgba(0, 0, 0, 0.4) 50%,
-          rgba(0, 0, 0, 0.3) 100%
-        );
-        z-index: 12;
-      }
-
-      /* Update visualizer styling */
-      #visualizer {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: transparent;
-        opacity: 0.4; /* Reduce visualizer opacity */
-        mix-blend-mode: screen;
-        z-index: 15;
-      }
-
-      /* Enhanced Audio Controls Container */
-      .audio-controls-container {
-        position: absolute;
-        bottom: 40px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 90%;
-        max-width: 600px;
-        padding: 20px;
-        background: rgba(0, 0, 0, 0.6);
-        border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(10px);
-        z-index: 30; /* Ensure controls are always visible */
-      }
-
-      /* Style the audio element */
-      audio {
-        width: 100%;
-        height: 40px;
-        background: transparent;
-        border-radius: 10px;
-      }
-
-      /* Update status message styling */
-      #statusMessage {
-        position: absolute;
-        bottom: 120px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 90%;
-        text-align: center;
-        color: white;
-        font-size: 1.2rem;
-        font-weight: 500;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-        z-index: 25;
-      }
-
-      /* Adjust particle opacity */
-      .particles div {
-        opacity: 0.3; /* Reduce particle opacity */
-      }
-
-      /* Update audio player container */
-      .audio-player {
-        min-height: 500px;
-        background: rgba(0, 0, 0, 0.2);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-
-      /* Custom audio player controls */
-      audio::-webkit-media-controls-panel {
-        background: rgba(0, 0, 0, 0.5) !important;
-        backdrop-filter: blur(10px);
-      }
-
-      audio::-webkit-media-controls-play-button,
-      audio::-webkit-media-controls-mute-button {
-        background-color: rgba(255, 255, 255, 0.2);
-        border-radius: 50%;
-        transition: all 0.3s ease;
-      }
-
-      audio::-webkit-media-controls-play-button:hover,
-      audio::-webkit-media-controls-mute-button:hover {
-        background-color: rgba(255, 255, 255, 0.3);
-        transform: scale(1.1);
-      }
-
-      audio::-webkit-media-controls-current-time-display,
-      audio::-webkit-media-controls-time-remaining-display {
-        color: white;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-      }
-
-      /* Core player styling */
-      .player-container {
-        position: relative;
-        min-height: 80vh;
-        background: rgba(0, 0, 0, 0.7);
-        border-radius: 24px;
-        overflow: hidden;
-        box-shadow: 0 0 50px rgba(0, 115, 230, 0.3);
-      }
-
-      /* Split layout */
-      .player-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 2rem;
-        height: 100%;
-        padding: 2rem;
-      }
-
-      /* Visualizer container */
-      .visualizer-container {
-        position: relative;
-        aspect-ratio: 1;
-        background: rgba(0, 0, 0, 0.4);
-        border-radius: 20px;
-        overflow: hidden;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-
-      #visualizer {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        filter: hue-rotate(0deg);
-        animation: hueShift 10s infinite linear;
-      }
-
-      @keyframes hueShift {
-        0% {
-          filter: hue-rotate(0deg);
-        }
-        100% {
-          filter: hue-rotate(360deg);
-        }
-      }
-
-      /* Image display */
-      .image-display {
-        position: relative;
-        border-radius: 20px;
-        overflow: hidden;
-        aspect-ratio: 16/9;
-      }
-
-      #imageContainer {
-        position: relative;
-        width: 100%;
-        height: 100%;
-      }
-
-      #imageContainer img {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
-        filter: brightness(0.8) contrast(1.2);
-      }
-
-      /* Controls section */
-      .controls-section {
-        position: relative;
-        padding: 2rem;
-        background: rgba(0, 0, 0, 0.3);
-        border-radius: 20px;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-
-      /* Custom audio player */
-      .audio-controls {
-        width: 100%;
-        padding: 1rem;
-        background: rgba(0, 0, 0, 0.4);
-        border-radius: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-
-      audio::-webkit-media-controls-panel {
-        background: transparent !important;
-      }
-
-      audio::-webkit-media-controls-play-button,
-      audio::-webkit-media-controls-mute-button {
-        background-color: rgba(0, 115, 230, 0.4);
-        border-radius: 50%;
-        transition: all 0.3s ease;
-      }
-
-      /* Status display */
-      #statusMessage {
-        margin-top: 1rem;
-        padding: 1rem;
-        background: rgba(0, 115, 230, 0.1);
-        border-radius: 10px;
-        font-size: 1.1rem;
-        font-weight: 500;
-        text-align: center;
-        animation: pulse 2s infinite;
-      }
-
-      /* Ambient effects */
-      .ambient-orb {
-        position: absolute;
-        border-radius: 50%;
-        filter: blur(100px);
-        opacity: 0.5;
-        animation: float 10s infinite ease-in-out;
-      }
-
-      .orb-1 {
-        top: -50%;
-        left: -20%;
-        width: 500px;
-        height: 500px;
-        background: rgba(0, 115, 230, 0.3);
-      }
-
-      .orb-2 {
-        bottom: -30%;
-        right: -10%;
-        width: 400px;
-        height: 400px;
-        background: rgba(0, 255, 136, 0.2);
-      }
-
-      @keyframes float {
-        0%,
-        100% {
-          transform: translate(0, 0);
-        }
-        50% {
-          transform: translate(-20px, -20px);
-        }
-      }
-
-      /* Enhanced 3D Transform Effects */
-      .player-container {
-        transform-style: preserve-3d;
-        transition: transform 0.5s ease;
-      }
-
-      .player-container:hover {
-        transform: translateY(-10px) rotateX(2deg);
-      }
-
-      /* Improved Visualizer Effects */
-      .visualizer-container {
-        position: relative;
-        background: rgba(0, 0, 0, 0.2);
-        border-radius: 30px;
-        box-shadow: 0 0 30px rgba(0, 115, 230, 0.3);
-        overflow: hidden;
-        backdrop-filter: blur(20px);
-      }
-
-      /* Dynamic Gradient Border */
-      .visualizer-container::before {
-        content: "";
-        position: absolute;
-        inset: -2px;
-        background: linear-gradient(
-          45deg,
-          rgba(0, 255, 136, 0.5),
-          rgba(0, 115, 230, 0.5),
-          rgba(255, 0, 255, 0.5)
-        );
-        border-radius: inherit;
-        z-index: -1;
-        animation: borderRotate 4s linear infinite;
-      }
-
-      @keyframes borderRotate {
-        0% {
-          filter: hue-rotate(0deg);
-        }
-        100% {
-          filter: hue-rotate(360deg);
-        }
-      }
-
-      /* Enhanced Image Display */
-      .image-display {
-        transform-style: preserve-3d;
-        perspective: 1000px;
-      }
-
-      #imageContainer img {
-        transform: scale(1.1);
-        transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
-        filter: brightness(0.85) contrast(1.1) saturate(1.2);
-      }
-
-      #imageContainer img:hover {
-        transform: scale(1.15) translateZ(20px);
-      }
-
-      /* Interactive Controls */
-      .controls-section {
-        transform: translateZ(30px);
-        background: rgba(0, 0, 0, 0.4);
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        transition: all 0.3s ease;
-      }
-
-      .controls-section:hover {
-        border-color: rgba(255, 255, 255, 0.3);
-        box-shadow: 0 0 30px rgba(0, 115, 230, 0.2);
-      }
-
-      /* Floating Particles Effect */
-      .particle {
-        position: absolute;
-        pointer-events: none;
-        background: radial-gradient(
-          circle,
-          rgba(255, 255, 255, 0.8) 0%,
-          rgba(255, 255, 255, 0) 70%
-        );
-        border-radius: 50%;
-        animation: particleFloat 8s infinite linear;
-      }
-
-      /* News Overlay Styling */
-      .news-overlay {
-        position: absolute;
-        inset: 0;
-        z-index: 10;
-        padding: 1.5rem;
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        background: rgba(0, 0, 0, 0.3);
-        backdrop-filter: blur(8px);
-        opacity: 0.9;
-        transition: opacity 0.3s ease;
-      }
-
-      .news-overlay:hover {
-        opacity: 1;
-      }
-
-      .news-sections {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        gap: 1.5rem;
-      }
-
-      .news-section {
-        padding: 1rem;
-        border-radius: 12px;
-        background: rgba(0, 115, 230, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        transition: all 0.3s ease;
-      }
-
-      .news-section:hover {
-        transform: translateY(-2px);
-        border-color: rgba(255, 255, 255, 0.3);
-        box-shadow: 0 8px 32px rgba(0, 115, 230, 0.2);
-      }
-
-      .section-title {
-        font-size: 1.2rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
-        color: #fff;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-      }
-
-      /* Breaking News Ticker */
-      .news-ticker {
-        height: 3rem;
-        overflow: hidden;
-        position: relative;
-      }
-
-      .ticker-item {
-        position: absolute;
-        width: 100%;
-        padding: 0.5rem;
-        background: rgba(255, 0, 0, 0.2);
-        border-radius: 8px;
-        transform: translateY(100%);
-        animation: tickerSlide 15s linear infinite;
-      }
-
-      @keyframes tickerSlide {
-        0% {
-          transform: translateY(100%);
-          opacity: 0;
-        }
-        5% {
-          transform: translateY(0);
-          opacity: 1;
-        }
-        95% {
-          transform: translateY(0);
-          opacity: 1;
-        }
-        100% {
-          transform: translateY(-100%);
-          opacity: 0;
-        }
-      }
-
-      /* Trending Topics */
-      .trending-tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-      }
-
-      .trending-tag {
-        padding: 0.5rem 1rem;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 20px;
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-      }
-
-      .trending-tag:hover {
-        background: rgba(0, 115, 230, 0.3);
-        transform: scale(1.05);
-      }
-
-      /* Explore Topics */
-      .topic-bubbles {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-        justify-content: center;
-      }
-
-      .topic-bubble {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(255, 255, 255, 0.1);
-        cursor: pointer;
-        transition: all 0.3s ease;
-        animation: float 6s infinite ease-in-out;
-      }
-
-      .topic-bubble:hover {
-        transform: scale(1.1);
-        background: rgba(0, 115, 230, 0.3);
-      }
-
-      .topic-bubble:nth-child(even) {
-        animation-delay: -3s;
-      }
-
-      /* Modern Dashboard Layout */
-      .news-dashboard {
-        position: absolute;
-        inset: 0;
-        z-index: 10;
-        padding: 1.5rem;
-        background: linear-gradient(
-          135deg,
-          rgba(10, 10, 20, 0.9),
-          rgba(30, 30, 60, 0.8)
-        );
-        backdrop-filter: blur(20px);
-      }
-
-      .dashboard-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        grid-template-rows: auto 1fr;
-        gap: 1.5rem;
-        height: 100%;
-        position: relative;
-        z-index: 2;
-      }
-
-      /* Enhanced Background Effects */
-      .bg-shapes {
-        position: absolute;
-        inset: 0;
-        overflow: hidden;
-        z-index: 1;
-      }
-
-      .shape {
-        position: absolute;
-        border-radius: 50%;
-        filter: blur(80px);
-        opacity: 0.2;
-        animation: shapeFloat 20s infinite ease-in-out;
-      }
-
-      .shape-1 {
-        width: 400px;
-        height: 400px;
-        background: linear-gradient(45deg, #4caf50, #2196f3);
-        top: -100px;
-        left: -100px;
-      }
-
-      .shape-2 {
-        width: 500px;
-        height: 500px;
-        background: linear-gradient(45deg, #9c27b0, #e91e63);
-        bottom: -150px;
-        right: -150px;
-        animation-delay: -5s;
-      }
-
-      .shape-3 {
-        width: 300px;
-        height: 300px;
-        background: linear-gradient(45deg, #ff9800, #f44336);
-        top: 50%;
-        left: 50%;
-        animation-delay: -10s;
-      }
-
-      /* Modern Panel Design */
-      .panel {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 24px;
-        padding: 1.75rem;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        backdrop-filter: blur(10px);
-      }
-
-      .panel:hover {
-        background: rgba(255, 255, 255, 0.05);
-        border-color: rgba(255, 255, 255, 0.1);
-        transform: translateY(-4px);
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
-      }
-
-      .panel-large {
-        grid-column: 1 / -1;
-      }
-
-      /* Enhanced Header Design */
-      .panel-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      }
-
-      .panel-header h3 {
-        font-size: 1.2rem;
-        font-weight: 600;
-        letter-spacing: 1px;
-        color: rgba(255, 255, 255, 0.95);
-        text-transform: uppercase;
-      }
-
-      /* Interactive Live Indicator */
-      .live-indicator {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.5rem 1rem;
-        background: rgba(255, 68, 68, 0.1);
-        border-radius: 20px;
-        border: 1px solid rgba(255, 68, 68, 0.2);
-        transition: all 0.3s ease;
-      }
-
-      .live-indicator:hover {
-        background: rgba(255, 68, 68, 0.2);
-        transform: scale(1.05);
-      }
-
-      .pulse {
-        width: 10px;
-        height: 10px;
-        background: #ff4444;
-        border-radius: 50%;
-        animation: pulse 2s infinite;
-        box-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
-      }
-
-      .live-text {
-        font-size: 0.9rem;
-        font-weight: 600;
-        color: #ff4444;
-        letter-spacing: 2px;
-      }
-
-      /* Enhanced News Carousel */
-      .news-carousel {
-        position: relative;
-        height: 100px;
-        overflow: hidden;
-        background: rgba(0, 0, 0, 0.2);
-        border-radius: 16px;
-        padding: 1rem;
-      }
-
-      .news-item {
-        position: absolute;
-        width: 100%;
-        padding: 1rem;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        transform: translateX(100%);
-        animation: newsSlide 20s linear infinite;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-      }
-
-      .news-item:hover {
-        background: rgba(255, 255, 255, 0.1);
-        transform: scale(1.02);
-      }
-
-      /* Modern Trend Cloud */
-      .trend-cloud {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-        padding: 0.75rem;
-      }
-
-      .trend-tag {
-        padding: 0.75rem 1.25rem;
-        background: rgba(64, 156, 255, 0.1);
-        border: 1px solid rgba(64, 156, 255, 0.2);
-        border-radius: 20px;
-        font-size: 0.95rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-      }
-
-      .trend-tag:hover {
-        background: rgba(64, 156, 255, 0.2);
-        transform: translateY(-4px) scale(1.05);
-        box-shadow: 0 8px 24px rgba(64, 156, 255, 0.2);
-      }
-
-      .trend-count {
-        padding: 0.25rem 0.75rem;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        font-size: 0.8rem;
-        font-weight: 600;
-      }
-
-      /* Interactive Topics Grid */
-      .topics-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-        gap: 1.25rem;
-        padding: 0.5rem;
-      }
-
-      .topic-item {
-        aspect-ratio: 1;
-        background: rgba(255, 255, 255, 0.03);
-        border-radius: 20px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 0.75rem;
-        cursor: pointer;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        overflow: hidden;
-      }
-
-      .topic-content {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.5rem;
-        z-index: 2;
-      }
-
-      .topic-icon {
-        font-size: 2rem;
-        transition: all 0.3s ease;
-      }
-
-      .topic-name {
-        font-size: 0.9rem;
-        font-weight: 500;
-        opacity: 0.9;
-      }
-
-      .topic-item::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(
-          45deg,
-          transparent,
-          rgba(255, 255, 255, 0.1)
-        );
-        opacity: 0;
-        transition: all 0.3s ease;
-      }
-
-      .topic-item:hover {
-        transform: translateY(-4px) scale(1.05);
-        background: rgba(255, 255, 255, 0.05);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-      }
-
-      .topic-item:hover::before {
-        opacity: 1;
-      }
-
-      .topic-item:hover .topic-icon {
-        transform: scale(1.2);
-      }
-
-      /* Custom Select Styling */
-      .filter-select {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        padding: 0.5rem 1rem;
-        color: white;
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-      }
-
-      .filter-select:hover {
-        background: rgba(255, 255, 255, 0.1);
-        border-color: rgba(255, 255, 255, 0.2);
-      }
-
-      /* Control Buttons */
-      .control-btn {
-        background: rgba(255, 255, 255, 0.05);
-        border: none;
-        border-radius: 50%;
-        width: 36px;
-        height: 36px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-      }
-
-      .control-btn:hover {
-        background: rgba(255, 255, 255, 0.1);
-        transform: rotate(180deg);
-      }
-
-      .control-btn .icon {
-        font-size: 1.2rem;
-        color: white;
+      .animate-gradient-x {
+        background-size: 200% 200%;
+        animation: gradient-x 15s ease infinite;
       }
     </style>
   </head>
@@ -1161,26 +35,27 @@
     {% csrf_token %}
     <div class="container mx-auto px-4 py-12">
       <div class="max-w-7xl mx-auto">
-        <!-- Header -->
-        <div class="text-center mb-12">
+        <!-- Enhanced Header -->
+        <div class="text-center mb-12 relative">
+          <div class="absolute inset-0 blur-3xl"></div>
           <h1
-            class="text-6xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400"
+            class="text-7xl font-bold mb-4 relative bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 via-blue-400 to-purple-400 tracking-tight hover:scale-105 transition-transform duration-300 drop-shadow-[0_0_35px_rgba(66,220,219,0.25)] animate-gradient-x"
           >
             X Radio Kenya
           </h1>
-          <p class="text-xl text-blue-200 opacity-90">
+          <p class="text-xl text-blue-200 opacity-90 relative animate-pulse">
             Your AI-powered news and educational radio service
           </p>
         </div>
 
-        <!-- Main player -->
-        <div class="player-container">
-          <!-- Ambient background -->
+        <!-- Enhanced Player Container -->
+        <div class="player-container relative">
+          <!-- Dynamic Background Elements -->
           <div class="ambient-orb orb-1"></div>
           <div class="ambient-orb orb-2"></div>
 
           <div class="player-grid">
-            <!-- Left column: Visualizer -->
+            <!-- Left Column: Enhanced News Dashboard -->
             <div class="visualizer-container">
               <div class="news-dashboard">
                 <!-- Dynamic Background Shapes -->
@@ -1190,55 +65,27 @@
                   <div class="shape shape-3"></div>
                 </div>
 
-                <!-- Main Content Grid -->
                 <div class="dashboard-grid">
-                  <!-- Breaking News Panel -->
+                  <!-- Trending News Panel -->
                   <div class="panel panel-large breaking-panel">
                     <div class="panel-header">
                       <div class="live-indicator">
                         <span class="pulse"></span>
                         <span class="live-text">LIVE</span>
                       </div>
-                      <h3>Breaking News</h3>
-                      <div class="panel-controls">
-                        <button class="control-btn refresh">
-                          <span class="icon">↻</span>
-                        </button>
+                      <h3>Trending Topics</h3>
+                      <div>
+                        <div class="refresh-button" onclick="refreshNews()">
+                          <span class="refresh-icon">⟳</span>
+                        </div>
                       </div>
                     </div>
                     <div class="news-carousel" id="breakingNewsTicker">
-                      <!-- Populated by JavaScript -->
+                      <!-- News items will be dynamically added here -->
                     </div>
-                  </div>
-
-                  <!-- Trending Panel -->
-                  <div class="panel trending-panel">
-                    <div class="panel-header">
-                      <h3>Trending Now</h3>
-                      <div class="trend-stats">
-                        <div class="trend-graph"></div>
-                      </div>
-                    </div>
-                    <div class="trend-cloud" id="trendingTags">
-                      <!-- Populated by JavaScript -->
-                    </div>
-                  </div>
-
-                  <!-- Topics Panel -->
-                  <div class="panel topics-panel">
-                    <div class="panel-header">
-                      <h3>Quick Topics</h3>
-                      <div class="topics-filter">
-                        <select class="filter-select">
-                          <option value="all">All Topics</option>
-                          <option value="news">News</option>
-                          <option value="tech">Technology</option>
-                          <option value="culture">Culture</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div class="topics-grid" id="exploreTopics">
-                      <!-- Populated by JavaScript -->
+                    <!-- Add Topic Categories -->
+                    <div class="topic-categories" id="topicCategories">
+                      <!-- Categories will be dynamically added here -->
                     </div>
                   </div>
                 </div>
@@ -1246,22 +93,33 @@
               <canvas id="visualizer"></canvas>
             </div>
 
-            <!-- Right column: Image and Controls -->
+            <!-- Right Column: Enhanced Image and Controls -->
             <div class="flex flex-col gap-6">
-              <div class="image-display">
-                <div id="imageContainer">
-                  <img id="currentImage" src="" alt="AI Generated Visual" />
-                  <img id="nextImage" src="" alt="AI Generated Visual" />
+              <div class="image-display glass-effect">
+                <div id="imageContainer" class="relative">
+                  <img
+                    id="currentImage"
+                    src=""
+                    alt="AI Generated Visual"
+                    class="rounded-2xl"
+                  />
+                  <img
+                    id="nextImage"
+                    src=""
+                    alt="AI Generated Visual"
+                    class="rounded-2xl"
+                  />
+                  <div class="overlay-gradient"></div>
                 </div>
               </div>
 
-              <div class="controls-section">
+              <div class="controls-section glass-effect">
                 <div class="audio-controls">
                   <audio id="newsAudio" class="w-full" controls autoplay>
                     <source src="/api/stream-broadcast/" type="audio/mpeg" />
                   </audio>
                 </div>
-                <div id="statusMessage"></div>
+                <div id="statusMessage" class="text-center mt-4"></div>
               </div>
             </div>
           </div>
@@ -1269,8 +127,9 @@
       </div>
     </div>
 
-    <!-- Add wave animation background -->
+    <!-- Enhanced background effects -->
     <div class="wave"></div>
+    <div id="particles" class="particles"></div>
 
     <script>
       const audio = document.getElementById("newsAudio");
@@ -1303,35 +162,28 @@
         requestAnimationFrame(draw);
         analyzer.getByteFrequencyData(dataArray);
 
-        const time = Date.now() * 0.001;
-        ctx.fillStyle = `rgba(0, 0, 0, 0.1)`;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
 
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
-        const radius = Math.min(canvas.width, canvas.height) * 0.3;
+        const barWidth = (canvas.width / bufferLength) * 2.5;
+        let barHeight;
+        let x = 0;
 
         for (let i = 0; i < bufferLength; i++) {
-          const angle = (i * 2 * Math.PI) / bufferLength;
-          const value = dataArray[i];
-          const barHeight = (value / 255) * (radius * 0.8);
+          barHeight = dataArray[i];
 
-          const hue = (time * 50 + (i * 360) / bufferLength) % 360;
-          const saturation = 80 + Math.sin(time + i) * 20;
-          const lightness = 50 + value / 5;
+          const r = barHeight + 25 * (i / bufferLength);
+          const g = 250 * (i / bufferLength);
+          const b = 50;
 
-          ctx.beginPath();
-          ctx.moveTo(
-            centerX + Math.cos(angle) * radius,
-            centerY + Math.sin(angle) * radius
+          ctx.fillStyle = `rgb(${r},${g},${b})`;
+          ctx.fillRect(
+            x,
+            canvas.height - barHeight / 2,
+            barWidth,
+            barHeight / 2
           );
-          ctx.lineTo(
-            centerX + Math.cos(angle) * (radius + barHeight),
-            centerY + Math.sin(angle) * (radius + barHeight)
-          );
-          ctx.strokeStyle = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-          ctx.lineWidth = 4;
-          ctx.stroke();
+
+          x += barWidth + 1;
         }
       }
 
@@ -1504,92 +356,77 @@
       createFloatingParticles();
 
       // News Display System
-      function initializeNewsSystem() {
-        const breakingNews = [
-          {
-            title: "Latest updates on technology innovations in Kenya",
-            category: "Tech",
-            time: "2m ago",
-          },
-          {
-            title: "Breaking: New educational initiatives launched",
-            category: "Education",
-            time: "5m ago",
-          },
-          {
-            title: "Economic forecast: Kenya's tech sector growth",
-            category: "Business",
-            time: "10m ago",
-          },
-        ];
-
-        const trendingTopics = [
-          { name: "Tech", count: 2.5, trend: "up" },
-          { name: "Education", count: 1.8, trend: "up" },
-          { name: "Innovation", count: 1.2, trend: "stable" },
-          { name: "StartUps", count: 3.1, trend: "up" },
-          { name: "AI", count: 4.2, trend: "up" },
-          { name: "Climate", count: 2.7, trend: "down" },
-        ];
-
-        const exploreTopics = [
-          { name: "Science", icon: "🔬", color: "#4CAF50" },
-          { name: "Culture", icon: "🎭", color: "#9C27B0" },
-          { name: "Business", icon: "💼", color: "#2196F3" },
-          { name: "Sports", icon: "⚽", color: "#FF9800" },
-          { name: "Health", icon: "🏥", color: "#E91E63" },
-          { name: "Tech", icon: "💻", color: "#00BCD4" },
-        ];
-
-        // Initialize Breaking News with enhanced layout
+      async function loadTrendingNews() {
         const newsContainer = document.getElementById("breakingNewsTicker");
-        breakingNews.forEach((news, index) => {
-          const newsItem = document.createElement("div");
-          newsItem.className = "news-item";
-          newsItem.innerHTML = `
-            <div class="news-category">${news.category}</div>
-            <div class="news-content">
-              <div class="news-title">${news.title}</div>
-              <div class="news-time">${news.time}</div>
-            </div>
-          `;
-          newsItem.style.animationDelay = `${index * 7}s`;
-          newsContainer.appendChild(newsItem);
-        });
-
-        // Initialize Trending Tags with enhanced visuals
         const tagsContainer = document.getElementById("trendingTags");
-        trendingTopics.forEach((topic) => {
-          const tag = document.createElement("div");
-          tag.className = "trend-tag";
-          tag.innerHTML = `
-            <span class="tag-name">#${topic.name}</span>
-            <span class="trend-count">
-              ${topic.count}K
-              <span class="trend-indicator ${topic.trend}"></span>
-            </span>
-          `;
-          tag.addEventListener("click", () => handleTopicClick(topic.name));
-          tagsContainer.appendChild(tag);
-        });
-
-        // Initialize Explore Topics with enhanced interactivity
         const topicsContainer = document.getElementById("exploreTopics");
-        exploreTopics.forEach((topic) => {
-          const topicItem = document.createElement("div");
-          topicItem.className = "topic-item";
-          topicItem.style.backgroundColor = topic.color;
-          topicItem.innerHTML = `
-            <div class="topic-content">
-              <div class="topic-icon">${topic.icon}</div>
-              <div class="topic-name">${topic.name}</div>
-            </div>
-          `;
-          topicItem.addEventListener("click", () =>
-            handleTopicClick(topic.name)
-          );
-          topicsContainer.appendChild(topicItem);
-        });
+
+        try {
+          newsContainer.innerHTML = `
+                <div class="loading-indicator">
+                    <div class="loading-spinner"></div>
+                    <span>Fetching latest news...</span>
+                </div>
+            `;
+
+          const response = await fetch("/api/news/trending/");
+          if (!response.ok)
+            throw new Error(`HTTP error! status: ${response.status}`);
+
+          const data = await response.json();
+
+          if (!data || !data.news || data.news.length === 0) {
+            throw new Error("No news data available");
+          }
+
+          // Clear the container
+          newsContainer.innerHTML = "";
+
+          // Update news items with animation delay
+          data.news.forEach((item, index) => {
+            const newsItem = document.createElement("div");
+            newsItem.className = "news-item fade-in";
+            newsItem.style.animationDelay = `${index * 0.1}s`;
+            newsItem.innerHTML = `
+                    <div class="news-category ${
+                      item.category
+                        ? item.category.toLowerCase().replace(/\s+/g, "-")
+                        : "general"
+                    }">
+                        ${item.category || "General"}
+                        <span class="category-indicator"></span>
+                    </div>
+                    <div class="news-content">
+                        <div class="news-title">${item.text}</div>
+                        <div class="news-meta">
+                            <span class="news-source">${item.source}</span>
+                            <span class="news-time">${getTimeAgo(
+                              new Date(item.created_at)
+                            )} seconds ago</span>
+                        </div>
+                    </div>
+                `;
+            newsContainer.appendChild(newsItem);
+          });
+
+          // Update topic categories if available
+          if (data.topics) {
+            updateTopicCategories(data.topics);
+          }
+        } catch (error) {
+          console.error("Error fetching news:", error);
+          newsContainer.innerHTML = `
+                <div class="error-message">
+                    <div class="error-icon">⚠️</div>
+                    <div class="error-text">
+                        ${error.message}
+                        <button onclick="loadTrendingNews()" class="retry-button">
+                            Try Again
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
       }
 
       function handleTopicClick(topic) {
@@ -1599,7 +436,7 @@
       }
 
       // Initialize the news system
-      initializeNewsSystem();
+      loadTrendingNews();
 
       // Add this near the top of your script section
       function connectWebSocket() {
@@ -1635,6 +472,238 @@
 
       // Call this when the page loads
       connectWebSocket();
+
+      let lastNewsUpdate = 0;
+      const NEWS_UPDATE_INTERVAL = 30000; // 30 seconds
+
+      function getTimeAgo(date) {
+        const seconds = Math.floor((new Date() - date) / 1000);
+
+        let interval = Math.floor(seconds / 31536000);
+        if (interval >= 1)
+          return interval + (interval === 1 ? " year" : " years") + " ago";
+
+        interval = Math.floor(seconds / 2592000);
+        if (interval >= 1)
+          return interval + (interval === 1 ? " month" : " months") + " ago";
+
+        interval = Math.floor(seconds / 86400);
+        if (interval >= 1)
+          return interval + (interval === 1 ? " day" : " days") + " ago";
+
+        interval = Math.floor(seconds / 3600);
+        if (interval >= 1)
+          return interval + (interval === 1 ? " hour" : " hours") + " ago";
+
+        interval = Math.floor(seconds / 60);
+        if (interval >= 1)
+          return interval + (interval === 1 ? " minute" : " minutes") + " ago";
+
+        if (seconds < 10) return "just now";
+
+        return Math.floor(seconds) + " seconds ago";
+      }
+
+      function createNewsElement(newsItem) {
+        const timeAgo = getTimeAgo(new Date(newsItem.created_at));
+        const categoryClass = newsItem.category
+          ? newsItem.category.toLowerCase().replace(/\s+/g, "-")
+          : "general";
+
+        return `
+            <div class="news-item fade-in" data-id="${newsItem.id}">
+                <div class="news-category ${categoryClass}">
+                    ${newsItem.category || "General"}
+                    <span class="category-indicator"></span>
+                </div>
+                <div class="news-content">
+                    <div class="news-title">${newsItem.text}</div>
+                    <div class="news-meta">
+                        <span class="news-source">${newsItem.source}</span>
+                        <span class="news-time">${timeAgo} seconds ago</span>
+                    </div>
+                </div>
+            </div>
+        `;
+      }
+
+      function updateTopicCategories(topics) {
+        const categoriesContainer = document.getElementById("topicCategories");
+        if (!categoriesContainer) return;
+
+        const categoryElements = topics
+          .map(
+            (topic) => `
+            <div class="topic-category">
+                <div class="topic-header">
+                    <span class="topic-name">#${topic.name}</span>
+                    <span class="topic-count">${topic.count}
+                        <i class="trend-arrow ${topic.trend}"></i>
+                    </span>
+                </div>
+                <div class="topic-preview">${topic.latest_news}</div>
+            </div>
+        `
+          )
+          .join("");
+
+        categoriesContainer.innerHTML = categoryElements;
+      }
+
+      async function refreshNews() {
+        const refreshButton = document.querySelector(".refresh-button");
+        const newsContainer = document.getElementById("breakingNewsTicker");
+
+        try {
+          refreshButton?.classList.add("rotating");
+          newsContainer.innerHTML = `
+                <div class="loading-indicator">
+                    <div class="loading-spinner"></div>
+                    <span>Fetching latest news...</span>
+                </div>
+            `;
+
+          const response = await fetch("/api/news/trending/");
+          if (!response.ok)
+            throw new Error(`HTTP error! status: ${response.status}`);
+
+          const data = await response.json();
+
+          if (!data || !data.news || data.news.length === 0) {
+            throw new Error("No news data available");
+          }
+
+          // Clear the container
+          newsContainer.innerHTML = "";
+
+          // Update news items with animation delay
+          data.news.forEach((item, index) => {
+            const newsItem = document.createElement("div");
+            newsItem.className = "news-item fade-in";
+            newsItem.style.animationDelay = `${index * 0.1}s`;
+            newsItem.innerHTML = `
+                    <div class="news-category ${
+                      item.category
+                        ? item.category.toLowerCase().replace(/\s+/g, "-")
+                        : "general"
+                    }">
+                        ${item.category || "General"}
+                        <span class="category-indicator"></span>
+                    </div>
+                    <div class="news-content">
+                        <div class="news-title">${item.text}</div>
+                        <div class="news-meta">
+                            <span class="news-source">${item.source}</span>
+                            <span class="news-time">${getTimeAgo(
+                              new Date(item.created_at)
+                            )} seconds ago</span>
+                        </div>
+                    </div>
+                `;
+            newsContainer.appendChild(newsItem);
+          });
+
+          // Update topic categories if available
+          if (data.topics) {
+            updateTopicCategories(data.topics);
+          }
+        } catch (error) {
+          console.error("Error fetching news:", error);
+          newsContainer.innerHTML = `
+                <div class="error-message">
+                    <div class="error-icon">⚠️</div>
+                    <div class="error-text">
+                        ${error.message}
+                        <button onclick="refreshNews()" class="retry-button">
+                            Try Again
+                        </button>
+                    </div>
+                </div>
+            `;
+        } finally {
+          refreshButton?.classList.remove("rotating");
+        }
+      }
+
+      function addNewsAnimations() {
+        const newsItems = document.querySelectorAll(".news-item");
+        newsItems.forEach((item, index) => {
+          item.style.animationDelay = `${index * 0.2}s`;
+          item.classList.add("fade-in");
+        });
+      }
+
+      // Initial load
+      document.addEventListener("DOMContentLoaded", () => {
+        refreshNews(); // Fetch and display news on page load
+        // Set up periodic updates
+        setInterval(() => {
+          if (Date.now() - lastNewsUpdate >= NEWS_UPDATE_INTERVAL) {
+            refreshNews();
+          }
+        }, NEWS_UPDATE_INTERVAL);
+      });
+
+      // Add error-related CSS
+      const style = document.createElement("style");
+      style.textContent = `
+          .error-message {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              gap: 1rem;
+              padding: 2rem;
+              background: rgba(255, 68, 68, 0.1);
+              border-radius: 12px;
+              text-align: center;
+          }
+
+          .error-icon {
+              font-size: 2rem;
+          }
+
+          .error-text {
+              color: rgba(255, 255, 255, 0.9);
+              font-size: 0.9rem;
+          }
+
+          .retry-button {
+              margin-top: 1rem;
+              padding: 0.5rem 1rem;
+              background: rgba(255, 255, 255, 0.2);
+              border: none;
+              border-radius: 6px;
+              color: white;
+              cursor: pointer;
+              transition: all 0.3s ease;
+          }
+
+          .retry-button:hover {
+              background: rgba(255, 255, 255, 0.3);
+          }
+
+          .rotating {
+              animation: rotate 1s linear infinite;
+          }
+
+          @keyframes rotate {
+              from { transform: rotate(0deg); }
+              to { transform: rotate(360deg); }
+          }
+      `;
+      document.head.appendChild(style);
+
+      // Update time ago text periodically
+      setInterval(() => {
+        document.querySelectorAll(".news-item").forEach((item) => {
+          const timeElement = item.querySelector(".news-time");
+          const newsId = item.dataset.id;
+          const newsItem = newsData.find((n) => n.id === newsId);
+          if (newsItem) {
+            timeElement.textContent = getTimeAgo(new Date(newsItem.created_at));
+          }
+        });
+      }, 60000); // Update every minute
     </script>
   </body>
 </html>

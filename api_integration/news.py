@@ -100,47 +100,67 @@ class NewsService:
                 logger.debug(f"Sample HTML: {response.text[:500]}")
             return []
 
-    async def get_trending_news(self, max_results=10):
+    async def get_trending_news(self, max_results=20):
         """Get news from both NewsAPI and Citizen Digital"""
         try:
             current_time = asyncio.get_event_loop().time()
             
-            # Return cached news if within cache duration
+            # Return cached news if within cache duration and not a forced refresh
             if self.news_cache and current_time - self.last_news_fetch < self.NEWS_CACHE_DURATION:
                 logger.info("Returning cached news")
                 return self.news_cache
 
             news_data = []
             
-            # Get international news from NewsAPI
-            newsapi_response = await asyncio.to_thread(
-                self.api.get_top_headlines,
-                language='en',
-                page_size=max_results
-            )
-            
-            if newsapi_response['status'] == 'ok':
-                articles = newsapi_response['articles']
-                news_data.extend([{
-                    'text': article['title'] + '. ' + (article['description'] or ''),
-                    'created_at': datetime.strptime(article['publishedAt'], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc),
-                    'id': article['url'],
-                    'source': 'NewsAPI'
-                } for article in articles if article['title'] and article['description']])
+            # Get international news from NewsAPI with more categories
+            categories = ['technology', 'business', 'science', 'health', 'entertainment']
+            for category in categories:
+                try:
+                    newsapi_response = await asyncio.to_thread(
+                        self.api.get_top_headlines,
+                        language='en',
+                        category=category,
+                        page_size=5  # Get 5 articles per category
+                    )
+                    
+                    if newsapi_response['status'] == 'ok':
+                        articles = newsapi_response['articles']
+                        for article in articles:
+                            if article['title'] and article['description']:
+                                news_data.append({
+                                    'text': article['title'] + '. ' + article['description'],
+                                    'created_at': datetime.strptime(article['publishedAt'], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc),
+                                    'id': article['url'],
+                                    'source': 'NewsAPI',
+                                    'category': category.title()
+                                })
+                except Exception as category_error:
+                    logger.error(f"Error fetching {category} news: {str(category_error)}")
+                    continue  # Continue with next category if one fails
 
             # Get Citizen Digital news
-            citizen_news = await self.get_citizen_news()
-            news_data.extend(citizen_news)
+            try:
+                citizen_news = await self.get_citizen_news()
+                if citizen_news:
+                    news_data.extend(citizen_news)
+            except Exception as citizen_error:
+                logger.error(f"Error fetching Citizen news: {str(citizen_error)}")
 
-            # Update cache
-            self.news_cache = sorted(news_data, key=lambda x: x['created_at'], reverse=True)[:max_results]
-            self.last_news_fetch = current_time
-
-            logger.info(f"Successfully fetched {len(self.news_cache)} total news articles")
-            return self.news_cache
+            # Only update cache if we have new data
+            if news_data:
+                self.news_cache = sorted(news_data, key=lambda x: x['created_at'], reverse=True)[:max_results]
+                self.last_news_fetch = current_time
+                logger.info(f"Successfully fetched {len(self.news_cache)} total news articles")
+                return self.news_cache
+            elif self.news_cache:  # Return existing cache if fetch failed
+                logger.warning("Fetch failed, returning existing cache")
+                return self.news_cache
+            else:
+                logger.error("No news data available")
+                return []
 
         except Exception as e:
-            logger.error(f"Error fetching trending news: {str(e)}")
+            logger.error(f"Error in get_trending_news: {str(e)}")
             return self.news_cache if self.news_cache else []
 
     def test_api_connection(self):
